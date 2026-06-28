@@ -4,109 +4,40 @@
     <meta charset="UTF-8">
     <title>Top 3 Likers</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            color: white;
-            /* Fond transparent pour OBS */
-            background-color: transparent; 
-        }
-
-        #leaderboard {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 250px;
-            background: rgba(0, 0, 0, 0.4); /* Fond noir semi-transparent */
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .liker-card {
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-
-        .avatar-container {
-            position: relative;
-            margin-right: 15px;
-        }
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid #3b82f6; /* Bordure bleue comme sur l'image */
-            object-fit: cover;
-        }
-
-        .crown {
-            position: absolute;
-            top: -15px;
-            left: -10px;
-            font-size: 24px;
-            display: none; /* Cachée par défaut */
-            transform: rotate(-15deg);
-        }
-
-        /* Afficher la couronne uniquement pour le rank 1 */
-        .rank-1 .crown {
-            display: block;
-        }
-
-        .rank-1 .avatar {
-            border-color: #fbbf24; /* Bordure dorée pour le premier */
-        }
-
-        .info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .nickname {
-            font-size: 14px;
-            font-weight: bold;
-            color: #60a5fa; /* Bleu clair */
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 150px;
-        }
-
-        .likes {
-            font-size: 13px;
-            color: #e5e5e5;
-            margin-top: 3px;
-        }
-
-        .heart {
-            color: #ef4444; /* Coeur rouge */
-            margin-right: 4px;
-        }
+        body { margin: 0; padding: 0; font-family: 'Arial', sans-serif; color: white; background-color: transparent; }
+        #leaderboard { display: flex; flex-direction: column; gap: 10px; width: 250px; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; }
+        .liker-card { display: flex; align-items: center; position: relative; }
+        .avatar-container { position: relative; margin-right: 15px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #3b82f6; object-fit: cover; }
+        .crown { position: absolute; top: -15px; left: -10px; font-size: 24px; display: none; transform: rotate(-15deg); }
+        .rank-1 .crown { display: block; }
+        .rank-1 .avatar { border-color: #fbbf24; }
+        .info { display: flex; flex-direction: column; }
+        .nickname { font-size: 14px; font-weight: bold; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        .likes { font-size: 13px; color: #e5e5e5; margin-top: 3px; }
+        .heart { color: #ef4444; margin-right: 4px; }
     </style>
 </head>
 <body>
+    <div id="leaderboard"></div>
 
-    <div id="leaderboard">
-        <!-- Le JS va injecter les profils ici -->
-    </div>
-
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        const socket = io();
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('user') || 'aramstreamla';
+
+        const socket = io("https://bot-tiktok-roblox.onrender.com", {
+            query: { username: username }
+        });
+
         const leaderboard = document.getElementById('leaderboard');
 
         socket.on('updateTopLikers', (top3) => {
-            leaderboard.innerHTML = ''; // On vide et on remet à jour
-
+            leaderboard.innerHTML = '';
             top3.forEach((user, index) => {
                 const rank = index + 1;
-                
                 const card = document.createElement('div');
                 card.className = `liker-card rank-${rank}`;
-
                 card.innerHTML = `
                     <div class="avatar-container">
                         <span class="crown">👑</span>
@@ -117,7 +48,6 @@
                         <span class="likes"><span class="heart">❤️</span>${user.likes.toLocaleString()}</span>
                     </div>
                 `;
-                
                 leaderboard.appendChild(card);
             });
         });
