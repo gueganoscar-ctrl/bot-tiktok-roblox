@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Top 3 Donateurs (Pièces)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            background-color: transparent; /* Fond transparent pour OBS */
+        }
+
+        #leaderboard {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 250px;
+            background: rgba(0, 0, 0, 0.4); 
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .gifter-card {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .avatar-container {
+            position: relative;
+            margin-right: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #3b82f6; 
+            object-fit: cover;
+        }
+
+        .crown {
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 24px;
+            display: none; 
+            transform: rotate(-15deg);
+        }
+
+        /* La couronne et bordure dorée uniquement pour le premier */
+        .rank-1 .crown {
+            display: block;
+        }
+        .rank-1 .avatar {
+            border-color: #fbbf24; 
+        }
+
+        .info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nickname {
+            font-size: 14px;
+            font-weight: bold;
+            color: #60a5fa; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .coins {
+            font-size: 13px;
+            color: #e5e5e5;
+            margin-top: 3px;
+        }
+
+        .diamond {
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="leaderboard">
+        <!-- Le JS injecte les profils ici -->
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const leaderboard = document.getElementById('leaderboard');
+
+        // On écoute le bon événement envoyé par le serveur global
+        socket.on('updateTopGifters', (top3) => {
+            leaderboard.innerHTML = ''; 
+
+            top3.forEach((user, index) => {
+                const rank = index + 1;
+                
+                const card = document.createElement('div');
+                card.className = `gifter-card rank-${rank}`;
+
+                card.innerHTML = `
+                    <div class="avatar-container">
+                        <span class="crown">👑</span>
+                        <img class="avatar" src="${user.profilePictureUrl}" alt="Avatar">
+                    </div>
+                    <div class="info">
+                        <span class="nickname">${user.nickname}</span>
+                        <span class="coins"><span class="diamond">💎</span>${user.coins.toLocaleString()}</span>
+                    </div>
+                `;
+                
+                leaderboard.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>
